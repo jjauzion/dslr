@@ -21,7 +21,7 @@ class DataFrame:
         :param header: if True (default), the first line is read as a aheader to get column names
         """
         with Path(file).open(mode='r', encoding='utf-8') as fp:
-            self.header = fp.readline().split(',') if header else []
+            self.header = np.array(fp.readline().split(',')) if header else []
             self.data = np.genfromtxt(fp, delimiter=',', dtype="float64")
         self.original_data = np.copy(self.data)
 
@@ -61,3 +61,8 @@ class DataFrame:
         stats_df.dropna(axis='columns', inplace=True)
         pd.options.display.width = 0
         print(stats_df)
+
+    def drop_nan_column(self):
+        mask = ~np.all(np.isnan(self.data), axis=0)
+        self.data = self.data[:, mask]
+        self.header = self.header[mask]
