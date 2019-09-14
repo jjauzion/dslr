@@ -23,7 +23,10 @@ def mean_vector(vector):
 
 
 def min_vector(vector):
-    min_val = vector[0]
+    try:
+        min_val = vector[0]
+    except IndexError:
+        return None
     for val in vector:
         if val < min_val:
             min_val = val
@@ -31,7 +34,10 @@ def min_vector(vector):
 
 
 def max_vector(vector):
-    max_val = vector[0]
+    try:
+        max_val = vector[0]
+    except IndexError:
+        return None
     for val in vector:
         if val > max_val:
             max_val = val
@@ -54,6 +60,8 @@ def std_vector(vector):
 def percentile_vector(vector, centile):
     if 0 < centile > 100:
         raise ValueError("centile shall be between 0 and 100. Got '{}'".format(centile))
+    if len(vector) <= 0:
+        return None
     sorted_vect = np.sort(vector)
     index = (len(vector) - 1) * centile / 100
     decimal = index - math.floor(index)

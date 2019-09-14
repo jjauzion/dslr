@@ -12,5 +12,6 @@ def histo(df, course):
 
 if __name__ == "__main__":
     df = pd.read_csv("data/dataset_train.csv")
-    histo(df, "Astronomy")
+    # histo(df, "Astronomy")
     histo(df, "Care of Magical Creatures")
+    # histo(df, "Arithmancy")
