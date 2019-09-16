@@ -8,10 +8,11 @@ from src import dataframe
 
 
 def histo(df, course):
-    plt.hist(df[df["Hogwarts House"] == "Ravenclaw"][course].dropna(), color='r', alpha=0.5)
-    plt.hist(df[df["Hogwarts House"] == "Slytherin"][course].dropna(), color='g', alpha=0.5)
-    plt.hist(df[df["Hogwarts House"] == "Gryffindor"][course].dropna(), color='y', alpha=0.5)
-    plt.hist(df[df["Hogwarts House"] == "Hufflepuff"][course].dropna(), color='b', alpha=0.5)
+    alpha = 0.3
+    plt.hist(df[df["Hogwarts House"] == "Ravenclaw"][course].dropna(), color='r', alpha=alpha)
+    plt.hist(df[df["Hogwarts House"] == "Slytherin"][course].dropna(), color='g', alpha=alpha)
+    plt.hist(df[df["Hogwarts House"] == "Gryffindor"][course].dropna(), color='y', alpha=alpha)
+    plt.hist(df[df["Hogwarts House"] == "Hufflepuff"][course].dropna(), color='b', alpha=alpha)
     plt.legend(("Ravenclaw", "Slytherin", "Gryffindor", "Hufflepuff"))
     plt.show()
 

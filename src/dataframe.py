@@ -62,6 +62,10 @@ class DataFrame:
         pd.options.display.width = 0
         print(stats_df)
 
+    def drop_column(self, col_index):
+        self.data = np.delete(self.data, col_index, axis=1)
+        self.header = np.delete(self.header, col_index)
+
     def drop_nan_column(self):
         mask = ~np.all(np.isnan(self.data), axis=0)
         self.data = self.data[:, mask]
