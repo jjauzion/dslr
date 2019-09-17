@@ -1,11 +1,11 @@
 import argparse
-import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from src import dataframe
 
 
-def scatter(df):
+def scatter_all(df):
     fig = plt.figure("scatter")
     plt.subplot()
     nb_col = df.data.shape[1]
@@ -18,13 +18,20 @@ def scatter(df):
     plt.show()
 
 
+def scatter(df, x_column, y_column):
+    plt.scatter(x=df.data[:, x_column], y=df.data[:, y_column])
+    plt.xlabel(df.header[x_column])
+    plt.ylabel(df.header[y_column])
+    plt.show()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("file", type=str, help="file to describe, shall be csv format")
+    parser.add_argument("-a", "--all", action="store_true", help="Scatter plot of all column in the dataset")
     args = parser.parse_args()
     df = dataframe.DataFrame()
     try:
-        # pddf = pd.read_csv(args.file)
         df.read_from_csv(args.file)
     except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError) as err:
         print("Could not read file '{}' because : {}".format(Path(args.file), err))
@@ -32,4 +39,7 @@ if __name__ == "__main__":
     df.drop_nan_column()
     df.drop_column(0)
     df.scale()
-    scatter(df)
+    if args.all:
+        scatter_all(df)
+    else:
+        scatter(df, 1, 3)
