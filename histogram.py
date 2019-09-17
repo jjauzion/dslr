@@ -19,7 +19,7 @@ def histo(df, course):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("file", type=str, help="file to describe, shall be csv format")
+    parser.add_argument("--file", type=str, default="data/dataset_train.csv", help="file to describe, shall be csv format")
     args = parser.parse_args()
     df = dataframe.DataFrame()
     try:

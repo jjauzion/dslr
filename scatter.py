@@ -27,7 +27,7 @@ def scatter(df, x_column, y_column):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("file", type=str, help="file to describe, shall be csv format")
+    parser.add_argument("--file", type=str, default="data/dataset_train.csv", help="file to describe, shall be csv format")
     parser.add_argument("-a", "--all", action="store_true", help="Scatter plot of all column in the dataset")
     args = parser.parse_args()
     df = dataframe.DataFrame()
