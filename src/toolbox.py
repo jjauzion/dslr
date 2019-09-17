@@ -5,8 +5,13 @@ import math
 def count_vector(vector):
     count = 0
     for val in vector:
-        if not np.isnan(val):
-            count += 1
+        try:
+            if not np.isnan(val):
+                count += 1
+        except TypeError as err:
+            print("val = ", val)
+            print(err.message)
+            exit(0)
     return count
 
 

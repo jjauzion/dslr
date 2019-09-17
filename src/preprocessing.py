@@ -55,7 +55,7 @@ class MeanNormScaler:
         return self.transform(data, inplace=inplace)
 
 
-class MinMaxScaler():
+class MinMaxScaler:
 
     name = "MeanNormScale"
 
@@ -89,3 +89,44 @@ class MinMaxScaler():
     def fit_transform(self, data, inplace=False):
         self.fit(data)
         return self.transform(data,inplace=inplace)
+
+
+class LabelEncoder:
+
+    def __init__(self, classes=None):
+        self._label = []
+        if classes is not None:
+            self.fit(classes)
+        else:
+            self._class = []
+
+    def fit(self, classes):
+        self._class = list(set(classes))
+        self._label = list(range(len(self._class)))
+
+    def transform(self, classes):
+        try:
+            if isinstance(classes, list):
+                label = [self._class.index(elm) for elm in classes]
+            else:
+                if isinstance(classes, bytes):
+                    classes = classes.decode('utf-8')
+                label = self._class.index(classes)
+        except ValueError:
+            raise ValueError("One of the given name is not a valid class name.\nGot '{}' ; Valid class name : '{}'"
+                             .format(classes, self._class))
+        except TypeError:
+            raise TypeError("Input given is not an iterable.\nGot'{}'".format(type(classes)))
+        return label
+
+    def fit_transform(self, classes):
+        self.fit(classes)
+        return self.transform(classes)
+
+    def inverse_transform(self, label):
+        try:
+            classes = [self._class[index] for index in label]
+        except IndexError:
+            raise IndexError("One of the label is out of range. Got '{}'".format(label))
+        return classes
+

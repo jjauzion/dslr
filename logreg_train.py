@@ -14,4 +14,3 @@ try:
 except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError) as err:
     print("Could not read file '{}' because : {}".format(Path(args.file), err))
     exit(0)
-df.describe()
