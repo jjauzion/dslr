@@ -9,7 +9,7 @@ args = parser.parse_args()
 df = dataframe.DataFrame()
 try:
     classes = ["Ravenclaw", "Slytherin", "Gryffindor", "Hufflepuff"]
-    df.read_from_csv(args.file, header=True, converts=(1, classes))
+    df.read_from_csv(args.file, header=True, converts={1: classes, 5: ["Left", "Right"]})
     # df.read_from_csv(args.file, header=True)
 except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError) as err:
     print("Could not read file '{}' because : {}".format(Path(args.file), err))

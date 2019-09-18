@@ -20,15 +20,19 @@ class DataFrame:
         create a dataframe from a csv file
         :param file: csv file path to open
         :param header: if True (default), the first line is read as a header to get column names
-        :param converts: (column, [classes]) -> will convert the value in column: each value of classes will be match an int
+        :param converts: {column: [classes]} -> will convert the value in column: each value of 'classes' will be a numeric value
         """
         with Path(file).open(mode='r', encoding='utf-8') as fp:
             self.header = np.array(fp.readline().split(',')) if header else []
             if converts is not None:
-                self.labelizer = preprocessing.LabelEncoder(converts[1])
-                self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters={converts[0]: self.labelizer.transform})
-                # self.data = np.genfromtxt(fp, delimiter=',', dtype="float64")
-                print("df =\n{}".format(self.data))
+                converters = {}
+                self.labelizer = {}
+                for column in converts:
+                    self.labelizer[column] = preprocessing.LabelEncoder(converts[column])
+                    converters[column] = self.labelizer[column].transform
+                # self.labelizer = preprocessing.LabelEncoder(converts[1])
+                print(converters)
+                self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters=converters)
             else:
                 self.data = np.genfromtxt(fp, delimiter=',', dtype="float64")
         self.original_data = np.copy(self.data)

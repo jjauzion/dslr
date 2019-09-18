@@ -102,16 +102,15 @@ class LabelEncoder:
 
     def fit(self, classes):
         self._class = list(set(classes))
-        self._label = list(range(len(self._class)))
 
     def transform(self, classes):
         try:
             if isinstance(classes, list):
-                label = [self._class.index(elm) for elm in classes]
+                label = [float(self._class.index(elm)) for elm in classes]
             else:
                 if isinstance(classes, bytes):
                     classes = classes.decode('utf-8')
-                label = self._class.index(classes)
+                label = float(self._class.index(classes))
         except ValueError:
             raise ValueError("One of the given name is not a valid class name.\nGot '{}' ; Valid class name : '{}'"
                              .format(classes, self._class))
@@ -125,7 +124,7 @@ class LabelEncoder:
 
     def inverse_transform(self, label):
         try:
-            classes = [self._class[index] for index in label]
+            classes = [self._class[int(index)] for index in label]
         except IndexError:
             raise IndexError("One of the label is out of range. Got '{}'".format(label))
         return classes
