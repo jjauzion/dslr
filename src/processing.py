@@ -7,23 +7,25 @@ import math
 
 class LogReg:
 
-    def __init__(self, nb_itertion, learning_rate, regularization="l1"):
+    def __init__(self, nb_itertion, learning_rate, nb_class, regularization="l1"):
         self.nb_iter = nb_itertion
         self.learning_rate = learning_rate
+        self.nb_class = nb_class
         self.regularization = regularization
         self.precision = -1
         self.recall = -1
         self.f1score = -1
         self.weight = None
-        self.cost_history = []
+        self.cost_history = np.zeros((nb_itertion, nb_class))
 
     def describe(self):
         print("Weights :\n{}".format(self.weight))
         print("model precision = {} ; recall = {} ; F1 score = {}".format(self.precision, self.recall, self.f1score))
 
     def plot_training(self):
-        fig = plt.figure("Training synthesis")
-        plt.plot(self.cost_history)
+        fig = plt.figure("Training convergence")
+        for i in range(self.nb_class):
+            plt.plot(self.cost_history[:, i])
         plt.title("Cost history")
         plt.xlabel("nb of iterations")
         plt.ylabel("Cost")
@@ -57,36 +59,58 @@ class LogReg:
         self.__dict__.update(model)
         return True
 
-    def _compute_hypothesis(self):
+    @staticmethod
+    def sigmoid(X):
+        return 1 / (1 + np.exp(-X))
+
+    def _compute_hypothesis(self, X):
         """
 
-        :param weight: n by 1 matrix, with n the number of parameter
-        :param X: m by n matrix
-        :return: m by 1 matrix
+        :param weight: n by nb_class matrix, with n the number of parameter
+        :param X: m by n matrix, with n the number of parameter and m nb of sample
+        :return: m by nb_class matrix, with m nb of sample
         """
-        return np.matmul(self.X, self.weight)
+        return self.sigmoid(np.matmul(X, self.weight))
 
-    def _compute_cost(self):
+    def _compute_cost(self, X, Y, H, regul=0):
         """
-        self.X: m by n matrix with m=nb of experience and n=nb of params
-        self.y: m by 1 matrix
-        self.weight: n by 1 matrix
-        """
-        return np.sum((self._compute_hypothesis() - self.y) ** 2) / (2 * self.X.shape[0])
 
-    def _update_weight(self):
+        self.weight : n by nb_class matrix, with n the number of parameter
+        :param X: m by n matrix, with n the number of parameter and m nb of sample
+        :param Y: m by nb_class matrix, with m nb of sample
+        :param H: m by nb_class matrix, with m nb of sample. Matrix of the computed hypothesis Y with the current weight
+        :param regul: value of the regularization term
+        :return:
         """
-        self.X: m by n matrix with m=nb of experience and n=nb of params
-        self.y: m by 1 matrix
-        self.weight: n by 1 matrix
+        return np.diagonal(-1 / X.shape[0] * (np.matmul(Y.T, np.log(H)) + np.matmul((1 - Y).T, np.log(1 - H)))
+                           + regul / (2 * X.shape[0]) * (self.weight.T * self.weight))
+
+    def _update_weight(self, X, Y, H, regul=0):
         """
-        return self.weight - self.learning_rate / self.X.shape[0] * \
-               np.matmul(self.X.transpose(), self._compute_hypothesis() - self.y)
+
+        self.weight : n by nb_class matrix, with n the number of parameter
+        :param X: m by n matrix, with n the number of parameter and m nb of sample
+        :param Y: m by nb_class matrix, with m nb of sample
+        :param H: m by nb_class matrix, with m nb of sample. Matrix of the computed hypothesis Y with the current weight
+        :param regul: value of the regularization term
+        :return: n by nb_class matrix
+        """
+        m = X.shape[0]
+        return self.weight - self.learning_rate * (np.matmul(X.T, H - Y) / m + regul * self.weight / m)
 
     def _compute_accuracy(self, y, y_pred):
         self.precision = 0
         self.recall = 0
         self.f1score = 2 * self.precision * self.recall / (self.precision + self.recall)
+
+    @staticmethod
+    def _get_multi_class_y(y, nb_class):
+        def is_class(val, class_nb):
+            return 1 if val == class_nb else 0
+        Y = np.ones((y.shape[0], nb_class), dtype="float64")
+        for i in range(nb_class):
+            Y[:, i] = [is_class(val, i) for val in y]
+        return Y
 
     def fit(self, X, y, verbose=1):
         """
@@ -96,17 +120,18 @@ class LogReg:
         :param verbose:
         :return:
         """
-        X = np.insert(X, 0, np.ones(self.X.shape[0]), axis=1)
-        self.weight = np.random.random((self.X.shape[1], 1))
-        self.cost_history.append(self._compute_cost())
+        X = np.insert(X, 0, np.ones(X.shape[0]), axis=1)
+        Y = self._get_multi_class_y(y, self.nb_class) if self.nb_class > 1 else y.reshape(-1, 1)
+        self.weight = np.random.random((X.shape[1], self.nb_class))
         for i in range(self.nb_iter):
-            self.weight = self._update_weight()
-            self.cost_history.append(self._compute_cost())
-        y_pred = self._compute_hypothesis()
-        self._compute_accuracy(y, y_pred)
+            H = self._compute_hypothesis(X)
+            self.weight = self._update_weight(X, Y, H)
+            self.cost_history[i, :] = self._compute_cost(X, Y, H)
+        y_pred = self._compute_hypothesis(X)
+        # self._compute_accuracy(y, y_pred)
         if verbose > 0:
             print("Training completed!")
-            print("Model evaluation: RMSE = {} ; MAE = {}".format(self.rmse, self.mae))
+            # print("Model evaluation: RMSE = {} ; MAE = {}".format(self.rmse, self.mae))
         if verbose > 1:
             self.plot_training()
 

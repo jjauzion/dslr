@@ -82,3 +82,6 @@ class DataFrame:
         mask = ~np.all(np.isnan(self.data), axis=0)
         self.data = self.data[:, mask]
         self.header = self.header[mask]
+
+    def drop_nan_row(self):
+        self.data = self.data[np.any(np.isnan(self.data), axis=1)]
