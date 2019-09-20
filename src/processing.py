@@ -2,7 +2,6 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 import pickle
-import math
 
 
 class LogReg:
@@ -12,9 +11,11 @@ class LogReg:
         self.learning_rate = learning_rate
         self.nb_class = nb_class
         self.regularization = regularization
+        self.confusion_matrix = np.zeros((nb_class, nb_class), dtype=int)
         self.precision = -1
         self.recall = -1
         self.f1score = -1
+        self.accuracy = -1
         self.weight = None
         self.cost_history = np.zeros((nb_itertion, nb_class))
 
@@ -60,8 +61,17 @@ class LogReg:
         return True
 
     @staticmethod
-    def sigmoid(X):
+    def _sigmoid(X):
         return 1 / (1 + np.exp(-X))
+
+    @staticmethod
+    def _to_class_id(Y_pred):
+        """
+
+        :param Y_pred: m by nb_class matrix, with m nb of sample
+        :return: m by 1 matrix -> predicted class number
+        """
+        return Y_pred.argmax(axis=1)
 
     def _compute_hypothesis(self, X):
         """
@@ -70,7 +80,7 @@ class LogReg:
         :param X: m by n matrix, with n the number of parameter and m nb of sample
         :return: m by nb_class matrix, with m nb of sample
         """
-        return self.sigmoid(np.matmul(X, self.weight))
+        return self._sigmoid(np.matmul(X, self.weight))
 
     def _compute_cost(self, X, Y, H, regul=0):
         """
@@ -82,8 +92,9 @@ class LogReg:
         :param regul: value of the regularization term
         :return:
         """
-        return np.diagonal(-1 / X.shape[0] * (np.matmul(Y.T, np.log(H)) + np.matmul((1 - Y).T, np.log(1 - H)))
-                           + regul / (2 * X.shape[0]) * (self.weight.T * self.weight))
+        cost = -1 / X.shape[0] * (np.matmul(Y.T, np.log(H)) + np.matmul((1 - Y).T, np.log(1 - H)))
+        regul_tmp = regul / (2 * X.shape[0]) * (np.matmul(self.weight.T, self.weight))
+        return np.diagonal(cost + regul_tmp)
 
     def _update_weight(self, X, Y, H, regul=0):
         """
@@ -99,9 +110,15 @@ class LogReg:
         return self.weight - self.learning_rate * (np.matmul(X.T, H - Y) / m + regul * self.weight / m)
 
     def _compute_accuracy(self, y, y_pred):
-        self.precision = 0
-        self.recall = 0
+        for i in range(y.shape[0]):
+            self.confusion_matrix[int(y_pred[i]), int(y[i])] += 1
+        total_predicted = np.sum(self.confusion_matrix, axis=1)
+        total_true = np.sum(self.confusion_matrix, axis=0)
+        true_positive = np.diagonal(self.confusion_matrix)
+        self.precision = true_positive / total_true
+        self.recall = true_positive / total_predicted
         self.f1score = 2 * self.precision * self.recall / (self.precision + self.recall)
+        self.accuracy = np.count_nonzero(np.equal(y, y_pred)) / y.shape[0]
 
     @staticmethod
     def _get_multi_class_y(y, nb_class):
@@ -127,13 +144,18 @@ class LogReg:
             H = self._compute_hypothesis(X)
             self.weight = self._update_weight(X, Y, H)
             self.cost_history[i, :] = self._compute_cost(X, Y, H)
-        y_pred = self._compute_hypothesis(X)
-        # self._compute_accuracy(y, y_pred)
+        Y_pred = self._compute_hypothesis(X)
+        y_pred = self._to_class_id(Y_pred)
+        self._compute_accuracy(y, y_pred)
         if verbose > 0:
             print("Training completed!")
-            # print("Model evaluation: RMSE = {} ; MAE = {}".format(self.rmse, self.mae))
+            print("Accuracy = {}%".format(self.accuracy * 100))
+            print("Precision = {}".format(self.precision))
+            print("Recall = {}".format(self.recall))
+            print("F1score = {}".format(self.f1score))
         if verbose > 1:
             self.plot_training()
+        return y, Y, y_pred, Y_pred
 
     def predict(self, x, verbose=1):
         """

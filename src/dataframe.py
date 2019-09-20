@@ -30,21 +30,25 @@ class DataFrame:
                 for column in converts:
                     self.labelizer[column] = preprocessing.LabelEncoder(converts[column])
                     converters[column] = self.labelizer[column].transform
-                # self.labelizer = preprocessing.LabelEncoder(converts[1])
-                print(converters)
                 self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters=converters)
             else:
                 self.data = np.genfromtxt(fp, delimiter=',', dtype="float64")
         self.original_data = np.copy(self.data)
 
-    def scale(self, scale_type="minmax"):
+    def scale(self, scale_type="minmax", first_col=0):
+        """
+
+        :param scale_type: minmax or meannorm
+        :param first_col: nb of column at the beginning of the df that shall not be scaled
+        :return:
+        """
         if scale_type == "minmax":
             self.scaler = preprocessing.MinMaxScaler()
         elif scale_type == "meannorm":
-            self.scaler == preprocessing.MeanNormScaler()
+            self.scaler = preprocessing.MeanNormScaler()
         else:
             raise ValueError("scale type unknown. Got '{}'".format(scale_type))
-        self.scaler.fit_transform(self.data, inplace=True)
+        self.scaler.fit_transform(self.data[:, first_col:], inplace=True)
 
     def count(self, axis=0):
         return np.apply_along_axis(tb.count_vector, axis=axis, arr=self.data)
@@ -84,4 +88,4 @@ class DataFrame:
         self.header = self.header[mask]
 
     def drop_nan_row(self):
-        self.data = self.data[np.any(np.isnan(self.data), axis=1)]
+        self.data = self.data[~np.any(np.isnan(self.data), axis=1)]
