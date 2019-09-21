@@ -1,4 +1,6 @@
 import numpy as np
+from pathlib import Path
+import pickle
 
 
 class IdentityScale:
@@ -54,6 +56,20 @@ class MeanNormScaler:
         self.fit(data)
         return self.transform(data, inplace=inplace)
 
+    def load(self, file):
+        with Path(file).open(mode='rb') as fp:
+            scale = pickle.load(fp)
+        self.mean = scale["mean"]
+        self.scale = scale["scale"]
+
+    def save(self, file):
+        scale = {
+            "mean": self.mean,
+            "scale": self.scale
+        }
+        with Path(file).open(mode='wb') as fp:
+            pickle.dump(scale, fp)
+
 
 class MinMaxScaler:
 
@@ -90,15 +106,29 @@ class MinMaxScaler:
         self.fit(data)
         return self.transform(data,inplace=inplace)
 
+    def load(self, file):
+        with Path(file).open(mode='rb') as fp:
+            scale = pickle.load(fp)
+        self.min = scale["min"]
+        self.max = scale["max"]
+        self.range = scale["range"]
+
+    def save(self, file):
+        scale = {
+            "min": self.min,
+            "max": self.max,
+            "range": self.range
+        }
+        with Path(file).open(mode='wb') as fp:
+            pickle.dump(scale, fp)
+
 
 class LabelEncoder:
 
     def __init__(self, classes=None):
-        self._label = []
+        self._class = []
         if classes is not None:
             self.fit(classes)
-        else:
-            self._class = []
 
     def fit(self, classes):
         self._class = list(set(classes))
@@ -128,4 +158,3 @@ class LabelEncoder:
         except IndexError:
             raise IndexError("One of the label is out of range. Got '{}'".format(label))
         return classes
-

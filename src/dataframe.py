@@ -1,6 +1,7 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import pickle
 
 from . import toolbox as tb
 from . import preprocessing
@@ -8,12 +9,14 @@ from . import preprocessing
 
 class DataFrame:
 
-    def __init__(self):
+    def __init__(self, import_scale_and_label=None):
         self.data = None
         self.original_data = None
         self.header = None
         self.scaler = None
         self.labelizer = None
+        if import_scale_and_label is not None:
+            self.load_scale_and_label(import_scale_and_label)
 
     def read_from_csv(self, file, header=True, converts=None):
         """
@@ -35,10 +38,11 @@ class DataFrame:
                 self.data = np.genfromtxt(fp, delimiter=',', dtype="float64")
         self.original_data = np.copy(self.data)
 
-    def scale(self, scale_type="minmax", first_col=0):
+    def scale(self, scale_type="minmax", import_scale=None, first_col=0):
         """
 
-        :param scale_type: minmax or meannorm
+        :param scale_type: minmax (default) or meannorm
+        :param import_scale: path to the scale file to be imported. If None, a new scaler will be created.
         :param first_col: nb of column at the beginning of the df that shall not be scaled
         :return:
         """
@@ -89,3 +93,17 @@ class DataFrame:
 
     def drop_nan_row(self):
         self.data = self.data[~np.any(np.isnan(self.data), axis=1)]
+
+    def save_scale_and_label(self, file):
+        df_tool = {
+            "scaler": self.scaler,
+            "labelizer": self.labelizer
+        }
+        with Path(file).open(mode='wb') as fp:
+            pickle.dump(df_tool, fp)
+
+    def load_scale_and_label(self, file):
+        with Path(file).open(mode='rb') as fp:
+            df_tool = pickle.load(fp)
+        self.labelizer = df_tool["labelizer"]
+        self.scaler = df_tool["scaler"]
