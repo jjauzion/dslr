@@ -18,7 +18,7 @@ except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, 
 df.drop_column(0)
 df.drop_nan_column()
 df.drop_nan_row()
-print(df.data)
 df.scale(scale_type="minmax", first_col=1)
 model = processing.LogReg(nb_itertion=1000, learning_rate=0.1, nb_class=4)
 y, Y, y_pred, Y_pred = model.fit(df.data[:, 1:], df.data[:, 0], verbose=2)
+model.save_model("no_regul.pkl")

@@ -6,42 +6,56 @@ import pickle
 
 class LogReg:
 
-    def __init__(self, nb_itertion, learning_rate, nb_class, regularization="l1"):
+    def __init__(self, nb_itertion=1000, learning_rate=0.1, nb_class=1, regularization="l1", model_name=None):
         self.nb_iter = nb_itertion
         self.learning_rate = learning_rate
         self.nb_class = nb_class
         self.regularization = regularization
+        self.name = model_name
         self.confusion_matrix = np.zeros((nb_class, nb_class), dtype=int)
-        self.precision = -1
-        self.recall = -1
-        self.f1score = -1
+        self.precision = [-1]
+        self.recall = [-1]
+        self.f1score = [-1]
         self.accuracy = -1
         self.weight = None
         self.cost_history = np.zeros((nb_itertion, nb_class))
 
     def describe(self):
         print("Weights :\n{}".format(self.weight))
-        print("model precision = {} ; recall = {} ; F1 score = {}".format(self.precision, self.recall, self.f1score))
+        print("\nPerformance:")
+        self.print_accuracy()
 
-    def plot_training(self):
+    def print_accuracy(self, class_name=None):
+        """
+
+        :param class_name: list containing the name of each class in order
+        """
+        class_name = class_name if class_name is not None else [str(elm) for elm in range(self.nb_class)]
+        col_padding = [15] + [max(7, len(elm)) for elm in class_name]
+        line = [
+            "".ljust(col_padding[0], " "),
+            "Precision".ljust(col_padding[0], " "),
+            "Recall".ljust(col_padding[0], " "),
+            "F1score".ljust(col_padding[0], " ")
+        ]
+        for i in range(self.nb_class):
+            line[0] += class_name[i].ljust(col_padding[i + 1], " ")
+            line[1] += "{}%".format(str(round(self.precision[i] * 100, 2))).ljust(col_padding[i + 1], " ")
+            line[2] += "{}%".format(str(round(self.recall[i] * 100, 2))).ljust(col_padding[i + 1], " ")
+            line[3] += "{}%".format(str(round(self.f1score[i] * 100, 2))).ljust(col_padding[i + 1], " ")
+        print("\n".join(line))
+        print("{title:<{width1}}{val:<{width2}}%".format(
+            title="Accuracy", width1=col_padding[0], val=round(self.accuracy * 100, 2), width2=col_padding[1] - 2))
+
+    def plot_training(self, class_name=None):
         fig = plt.figure("Training convergence")
         for i in range(self.nb_class):
             plt.plot(self.cost_history[:, i])
+        plt.legend(list(range(self.nb_class)))
         plt.title("Cost history")
         plt.xlabel("nb of iterations")
         plt.ylabel("Cost")
         plt.show()
-
-    def plot_prediction(self, mileage, prediction):
-        print("Estimated price : {}".format(prediction[0][0]))
-        if self.X_original is None:
-            return False
-        plt.scatter(self.X_original[:, 0], self.y, c='k', marker='.', label="training Dataset")
-        order_ind = self.X_original[:,0].argsort(axis=0)
-        plt.plot(mileage, prediction, '*g', self.X_original[order_ind], self.y_pred[order_ind], 'r', markersize=20)
-        plt.legend(("prediction", "polyfit line", "train dataset"))
-        plt.show()
-        return True
 
     def load_model(self, file):
         with Path(file).open(mode='rb') as fd:
@@ -149,10 +163,7 @@ class LogReg:
         self._compute_accuracy(y, y_pred)
         if verbose > 0:
             print("Training completed!")
-            print("Accuracy = {}%".format(self.accuracy * 100))
-            print("Precision = {}".format(self.precision))
-            print("Recall = {}".format(self.recall))
-            print("F1score = {}".format(self.f1score))
+            self.print_accuracy()
         if verbose > 1:
             self.plot_training()
         return y, Y, y_pred, Y_pred
@@ -185,3 +196,4 @@ class LogReg:
     def save_model(self, file):
         with Path(file).open(mode='wb') as fd:
             pickle.dump(self.__dict__, fd)
+        print("Model save to '{}'".format(Path(file)))
