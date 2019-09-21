@@ -5,7 +5,7 @@ from src import dataframe
 from src import processing
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--file", type=str, default="data/dataset_train.csv", help="file to describe, shall be csv format")
+parser.add_argument("--file", type=str, default="data/dataset_train.csv", help="train dataset file to be used")
 parser.add_argument("--name", type=str, default="model", help="name of the model")
 parser.add_argument("--save_dir", type=str, default="model", help="directory where to save model and df")
 args = parser.parse_args()

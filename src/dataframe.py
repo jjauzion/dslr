@@ -28,30 +28,36 @@ class DataFrame:
         with Path(file).open(mode='r', encoding='utf-8') as fp:
             self.header = np.array(fp.readline().split(',')) if header else []
             if converts is not None:
+                if self.labelizer is not None:
+                    print("Warning: previous labelizer has been overwritten with the given converts argument")
                 converters = {}
                 self.labelizer = {}
                 for column in converts:
                     self.labelizer[column] = preprocessing.LabelEncoder(converts[column])
                     converters[column] = self.labelizer[column].transform
-                self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters=converters)
+            elif self.labelizer is not None:
+                converters = {}
+                for column in self.labelizer.keys():
+                    converters[column] = self.labelizer[column].transform
             else:
-                self.data = np.genfromtxt(fp, delimiter=',', dtype="float64")
+                converters = None
+            self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters=converters)
         self.original_data = np.copy(self.data)
 
-    def scale(self, scale_type="minmax", import_scale=None, first_col=0):
+    def scale(self, scale_type="minmax", first_col=0):
         """
 
         :param scale_type: minmax (default) or meannorm
-        :param import_scale: path to the scale file to be imported. If None, a new scaler will be created.
         :param first_col: nb of column at the beginning of the df that shall not be scaled
         :return:
         """
-        if scale_type == "minmax":
-            self.scaler = preprocessing.MinMaxScaler()
-        elif scale_type == "meannorm":
-            self.scaler = preprocessing.MeanNormScaler()
-        else:
-            raise ValueError("scale type unknown. Got '{}'".format(scale_type))
+        if self.scaler is None:
+            if scale_type == "minmax":
+                self.scaler = preprocessing.MinMaxScaler()
+            elif scale_type == "meannorm":
+                self.scaler = preprocessing.MeanNormScaler()
+            else:
+                raise ValueError("scale type unknown. Got '{}'".format(scale_type))
         self.scaler.fit_transform(self.data[:, first_col:], inplace=True)
 
     def count(self, axis=0):

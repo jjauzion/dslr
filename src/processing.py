@@ -172,19 +172,19 @@ class LogReg:
         Make prediction based on x
         :param X: matrix of shape (n_samples, n_feature)
         :param verbose: verbosity level -> 0: nothing is printed ; 1: minimal printing
-        :return:
+        :return: ((n_feature x nb_of_class matrx), (n_feature x 1) matrix)
         """
         if self.weight is None:
             self.weight = np.zeros((X.shape[1], 1))
             print("Warning: it seems the model is not yet trained...")
+        X = np.insert(X, 0, np.ones(X.shape[0]), axis=1)
         if X.shape[1] != self.weight.shape[0]:
             raise ValueError("The input X matrix dimension ({}) doesn't match with model weight shape ({})"
                              .format(X.shape, self.weight.shape))
-        X = np.insert(X, 0, np.ones(X.shape[0]), axis=1)
         y_pred = self._compute_hypothesis(X)
         if verbose >= 1:
             print(y_pred)
-        return y_pred
+        return self._to_class_id(y_pred), y_pred
 
     def plot_train_set(self):
         print(self.X_original)
