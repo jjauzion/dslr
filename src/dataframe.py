@@ -78,12 +78,17 @@ class DataFrame:
     def percentile(self, centile, axis=0):
         return np.apply_along_axis(tb.percentile_vector, axis, self.data, centile)
 
+    def count_nan(self, axis=0):
+        return np.sum(np.isnan(self.data), axis=axis)
+
     def describe(self):
+        self.count_nan()
         stats = np.array([
             self.count(), self.mean(), self.std(), self.min(),
-            self.percentile(25), self.percentile(50), self.percentile(75), self.max()
+            self.percentile(25), self.percentile(50), self.percentile(75), self.max(), self.count_nan()
         ])
-        stats_df = pd.DataFrame(stats, index=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'], columns=self.header)
+        stats_df = pd.DataFrame(stats, index=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'NaN'],
+                                columns=self.header)
         stats_df.dropna(axis='columns', inplace=True)
         pd.options.display.width = 0
         print(stats_df)
