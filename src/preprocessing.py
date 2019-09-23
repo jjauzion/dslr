@@ -133,7 +133,7 @@ class LabelEncoder:
     def fit(self, classes):
         self._class = list(set(classes))
 
-    def transform(self, classes):
+    def transform(self, classes, ignore_unknown_class=True):
         try:
             if isinstance(classes, list):
                 label = [float(self._class.index(elm)) for elm in classes]
@@ -142,8 +142,11 @@ class LabelEncoder:
                     classes = classes.decode('utf-8')
                 label = float(self._class.index(classes))
         except ValueError:
-            raise ValueError("One of the given name is not a valid class name.\nGot '{}' ; Valid class name : '{}'"
-                             .format(classes, self._class))
+            if ignore_unknown_class:
+                return np.nan
+            else:
+                raise ValueError("One of the given name is not a valid class name.\nGot '{}' ; Valid class name : '{}'"
+                                 .format(classes, self._class))
         except TypeError:
             raise TypeError("Input given is not an iterable.\nGot'{}'".format(type(classes)))
         return label

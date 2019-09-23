@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+
 def count_vector(vector):
     count = 0
     for val in vector:

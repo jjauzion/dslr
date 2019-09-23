@@ -41,7 +41,7 @@ class DataFrame:
                     converters[column] = self.labelizer[column].transform
             else:
                 converters = None
-            self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters=converters)
+            self.data = np.genfromtxt(fp, delimiter=',', dtype="float64", converters=converters, missing_values="?")
         self.original_data = np.copy(self.data)
 
     def scale(self, scale_type="minmax", first_col=0):

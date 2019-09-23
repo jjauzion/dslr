@@ -20,14 +20,15 @@ def is_positive_int(value):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--file", type=str, default="data/dataset_train.csv", help="train dataset file to be used")
-parser.add_argument("--name", type=str, default="model", help="name of the model")
-parser.add_argument("--save_dir", type=str, default="model", help="directory where to save model and df")
-parser.add_argument("--scale", type=str, choices=["minmax", "meannorm"], default="minmax", help="type of scale to be used for data normalization")
-parser.add_argument("--regul_rate", type=is_positive, default=None, help="Value of the regularization rate. 0 or None if no regul (default).")
-parser.add_argument("--learning_rate", type=is_positive, default=0.1, help="Learning rate value (0.1 by default)")
-parser.add_argument("--nb_iter", type=is_positive_int, default=1000, help="number of iteration (1000 by default)")
-parser.add_argument("--verbosity", type=int, default=1, choices=[0, 1, 2], help="verbosity level: 0->silent, 1->result print, 2->plot show")
+parser.add_argument("file", type=str, help="train dataset file to be used")
+parser.add_argument("-n", "--name", type=str, default="model", help="name of the model")
+parser.add_argument("-o", "--save_dir", type=str, default="model", help="directory where to save model and df")
+parser.add_argument("-s", "--scale", type=str, choices=["minmax", "meannorm"], default="minmax", help="type of scale to be used for data normalization")
+parser.add_argument("-r", "--regul_rate", type=is_positive, default=None, help="Value of the regularization rate. 0 or None if no regul (default).")
+parser.add_argument("-lr", "--learning_rate", type=is_positive, default=0.1, help="Learning rate value (0.1 by default)")
+parser.add_argument("-i", "--nb_iter", type=is_positive_int, default=1000, help="number of iteration (1000 by default)")
+parser.add_argument("-v", "--verbosity", type=int, default=1, choices=[0, 1, 2], help="verbosity level: 0->silent, 1->result print, 2->plot show")
+parser.add_argument("-d", "--drop_col_6_7_16", action="store_true", help="drop col 5, 6 and 16 (useless col, see pairplot")
 args = parser.parse_args()
 df = dataframe.DataFrame()
 try:
@@ -39,7 +40,9 @@ except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, 
 if not Path(args.save_dir).is_dir():
     print("Directory '{}' does not exist".format(args.save_dir))
     exit(0)
-df.drop_column(0)
+df.drop_column([0])             # index column
+if args.drop_col_6_7_16:
+    df.drop_column([5, 6, 15])  # useless column (homogenous distri and correlated variable)
 df.drop_nan_column()
 df.drop_nan_row()
 df.scale(scale_type=args.scale, first_col=1)

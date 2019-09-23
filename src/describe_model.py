@@ -1,7 +1,7 @@
 from pathlib import Path
 import argparse
 
-from src import processing
+import processing
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", help="model file path")

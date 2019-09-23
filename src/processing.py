@@ -32,21 +32,22 @@ class LogReg:
         :param class_name: list containing the name of each class in order
         """
         class_name = class_name if class_name is not None else [str(elm) for elm in range(self.nb_class)]
-        col_padding = [15] + [max(7, len(elm)) for elm in class_name]
+        class_name = ["Average"] + class_name
+        col_padding = [15] + [max(9, len(elm)) for elm in class_name]
         line = [
             "".ljust(col_padding[0], " "),
             "Precision".ljust(col_padding[0], " "),
             "Recall".ljust(col_padding[0], " "),
             "F1score".ljust(col_padding[0], " ")
         ]
-        for i in range(self.nb_class):
+        for i in range(len(class_name)):
             line[0] += class_name[i].ljust(col_padding[i + 1], " ")
             line[1] += "{}%".format(str(round(self.precision[i] * 100, 2))).ljust(col_padding[i + 1], " ")
             line[2] += "{}%".format(str(round(self.recall[i] * 100, 2))).ljust(col_padding[i + 1], " ")
             line[3] += "{}%".format(str(round(self.f1score[i] * 100, 2))).ljust(col_padding[i + 1], " ")
         print("\n".join(line))
-        print("{title:<{width1}}{val:<{width2}}%".format(
-            title="Accuracy", width1=col_padding[0], val=round(self.accuracy * 100, 2), width2=col_padding[1] - 2))
+        print("{title:<{width1}}{val:<{width2}}".format(
+            title="Accuracy", width1=col_padding[0], val=str(round(self.accuracy * 100, 2)) + "%", width2=col_padding[1]))
 
     def plot_training(self, class_name=None):
         fig = plt.figure("Training convergence")
@@ -129,8 +130,11 @@ class LogReg:
         total_true = np.sum(self.confusion_matrix, axis=0)
         true_positive = np.diagonal(self.confusion_matrix)
         self.precision = true_positive / total_true
+        self.precision = np.insert(self.precision, 0, np.average(self.precision))
         self.recall = true_positive / total_predicted
+        self.recall = np.insert(self.recall, 0, np.average(self.recall))
         self.f1score = 2 * self.precision * self.recall / (self.precision + self.recall)
+        self.f1score = np.insert(self.f1score, 0, np.average(self.f1score))
         self.accuracy = np.count_nonzero(np.equal(y, y_pred)) / y.shape[0]
 
     @staticmethod
@@ -183,6 +187,8 @@ class LogReg:
                              .format(X.shape, self.weight.shape))
         y_pred = self._compute_hypothesis(X)
         if verbose >= 1:
+            print("Prediction completed!".format())
+        if verbose >= 2:
             print(y_pred)
         return self._to_class_id(y_pred), y_pred
 

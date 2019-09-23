@@ -14,6 +14,7 @@ def histo(df, course):
     plt.hist(df[df["Hogwarts House"] == "Gryffindor"][course].dropna(), color='y', alpha=alpha)
     plt.hist(df[df["Hogwarts House"] == "Hufflepuff"][course].dropna(), color='b', alpha=alpha)
     plt.legend(("Ravenclaw", "Slytherin", "Gryffindor", "Hufflepuff"))
+    plt.title(course)
     plt.show()
 
 
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     try:
         pddf = pd.read_csv(args.file)
         df.read_from_csv(args.file)
-    except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+    except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError, OSError) as err:
         print("Could not read file '{}' because : {}".format(Path(args.file), err))
         exit(0)
     df.drop_nan_column()
