@@ -9,7 +9,7 @@ args = parser.parse_args()
 df = dataframe.DataFrame()
 try:
     df.read_from_csv(args.file, header=True)
-except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError) as err:
+except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
     print("Could not read file '{}' because : {}".format(Path(args.file), err))
     exit(0)
 df.describe()

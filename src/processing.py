@@ -10,7 +10,7 @@ class LogReg:
         self.nb_iter = nb_itertion
         self.learning_rate = learning_rate
         self.nb_class = nb_class
-        self.regularization = regularization_rate
+        self.regularization = 0 if regularization_rate is None else regularization_rate
         self.name = model_name
         self.confusion_matrix = np.zeros((nb_class, nb_class), dtype=int)
         self.precision = [-1]
@@ -185,11 +185,6 @@ class LogReg:
         if verbose >= 1:
             print(y_pred)
         return self._to_class_id(y_pred), y_pred
-
-    def plot_train_set(self):
-        print(self.X_original)
-        plt.scatter(self.X_original, self.y)
-        plt.show()
 
     def save_model(self, file):
         with Path(file).open(mode='wb') as fd:
