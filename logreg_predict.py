@@ -17,7 +17,7 @@ try:
     df = dataframe.DataFrame(import_scale_and_label=args.df_tool)
     df.read_from_csv(args.file, header=True)
     model.load_model(args.model)
-except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
     print("Could not read file because : {}".format(err))
     exit(0)
 df.drop_column([1])  # drop hogwart house column
@@ -31,7 +31,7 @@ try:
         fp.write("Index,Hogwarts House\n")
         for index, stud in enumerate(res):
             fp.write("{},{}\n".format(int(df.data[index, 0]), stud))
-except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
     print("Could not read file '{}' because : {}".format(Path(args.file), err))
     exit(0)
 if args.verbosity >= 1:

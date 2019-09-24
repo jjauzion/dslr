@@ -26,7 +26,7 @@ if __name__ == "__main__":
     try:
         pddf = pd.read_csv(args.file)
         df.read_from_csv(args.file)
-    except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError, OSError) as err:
+    except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError, OSError) as err:
         print("Could not read file '{}' because : {}".format(Path(args.file), err))
         exit(0)
     df.drop_nan_column()

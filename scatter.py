@@ -52,7 +52,7 @@ if __name__ == "__main__":
     try:
         classes = ["Ravenclaw", "Slytherin", "Gryffindor", "Hufflepuff"]
         df.read_from_csv(args.file, header=True, converts={1: classes, 5: ["Left", "Right"]})
-    except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+    except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
         print("Could not read file '{}' because : {}".format(Path(args.file), err))
         exit(0)
     if len(df.data) == 0:

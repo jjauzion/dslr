@@ -28,6 +28,8 @@ class DataFrame:
         with Path(file).open(mode='r', encoding='utf-8') as fp:
             if header:
                 line = fp.readline()
+                if len(line) == 0:
+                    raise ValueError("File '{}' seems to be empty...".format(file))
                 self.header = np.array(line[:-1].split(",") if line[-1] == "\n" else line.split(","))
             if converts is not None:
                 if self.labelizer is not None:

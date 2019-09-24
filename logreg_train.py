@@ -34,7 +34,7 @@ df = dataframe.DataFrame()
 try:
     classes = ["Ravenclaw", "Slytherin", "Gryffindor", "Hufflepuff"]
     df.read_from_csv(args.file, header=True, converts={1: classes, 5: ["Left", "Right"]})
-except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
     print("Could not read file '{}' because : {}".format(Path(args.file), err))
     exit(0)
 if not Path(args.save_dir).is_dir():
@@ -52,12 +52,12 @@ y_pred = model.fit(df.data[:, 1:], df.data[:, 0], verbose=args.verbosity)
 model_file = Path(args.save_dir) / "{}.pkl".format(args.name)
 try:
     model.save_model(model_file)
-except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
     print("Can't save model to '{}' because : {}".format(model_file, err))
 print("Model saved to '{}'".format(model_file))
 df_tool_file = Path(args.save_dir) / "{}_df_tool.pkl".format(args.name)
 try:
     df.save_scale_and_label(df_tool_file)
-except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
+except (FileExistsError, FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError, ValueError, IndexError, UnicodeDecodeError, UnicodeError, UnicodeEncodeError) as err:
     print("Can't save dataframe scaler and label to '{}' because : {}".format(model_file, err))
 print("Dataframe scaler and label saved to '{}'".format(df_tool_file))
