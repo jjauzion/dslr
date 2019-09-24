@@ -12,7 +12,7 @@ class DataFrame:
     def __init__(self, import_scale_and_label=None):
         self.data = None
         self.original_data = None
-        self.header = None
+        self.header = []
         self.scaler = None
         self.labelizer = None
         if import_scale_and_label is not None:
@@ -26,7 +26,9 @@ class DataFrame:
         :param converts: {column: [classes]} -> will convert the value in column: each value of 'classes' will be a numeric value
         """
         with Path(file).open(mode='r', encoding='utf-8') as fp:
-            self.header = np.array(fp.readline().split(',')) if header else []
+            if header:
+                line = fp.readline()
+                self.header = np.array(line[:-1].split(",") if line[-1] == "\n" else line.split(","))
             if converts is not None:
                 if self.labelizer is not None:
                     print("Warning: previous labelizer has been overwritten with the given converts argument")

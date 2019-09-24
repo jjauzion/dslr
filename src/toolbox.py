@@ -68,7 +68,10 @@ def percentile_vector(vector, centile):
     if len(vector) <= 0:
         return None
     sorted_vect = np.sort(vector)
-    index = (len(vector) - 1) * centile / 100
+    sorted_vect = sorted_vect[~np.isnan(sorted_vect)]
+    if len(sorted_vect) == 0:
+        return np.nan
+    index = (len(sorted_vect) - 1) * centile / 100
     decimal = index - math.floor(index)
     if decimal != 0:
         a = sorted_vect[math.floor(index)]
