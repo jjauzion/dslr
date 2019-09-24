@@ -64,15 +64,12 @@ class LogReg:
             try:
                 model = pickle.load(fd)
             except (pickle.UnpicklingError, EOFError) as err:
-                print("Can't load model from '{}' because : {}".format(file, err))
-                return False
+                raise ValueError("Can't load model from '{}' because : {}".format(file, err))
         if not isinstance(model, dict):
-            print("Given file '{}' is not a valid model".format(file))
-            return False
+            raise ValueError("Given file '{}' is not a valid model".format(file))
         for key in model.keys():
             if key not in self.__dict__.keys():
-                print("Given file '{}' is not a valid model".format(file))
-                return False
+                raise ValueError("Given file '{}' is not a valid model".format(file))
         self.__dict__.update(model)
         return True
 

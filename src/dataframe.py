@@ -119,6 +119,13 @@ class DataFrame:
 
     def load_scale_and_label(self, file):
         with Path(file).open(mode='rb') as fp:
-            df_tool = pickle.load(fp)
-        self.labelizer = df_tool["labelizer"]
-        self.scaler = df_tool["scaler"]
+            try:
+                df_tool = pickle.load(fp)
+                self.labelizer = df_tool["labelizer"]
+                self.scaler = df_tool["scaler"]
+            except (pickle.UnpicklingError, EOFError, TypeError, IndexError, KeyError, ValueError) as err:
+                raise ValueError("Can't load scale and label from '{}' because : {}".format(file, err))
+        if not isinstance(self.labelizer, dict):
+            raise ValueError("Given file '{}' is not well formatted to load scale and label".format(file))
+        if not (isinstance(self.scaler, preprocessing.MeanNormScaler) or isinstance(self.scaler, preprocessing.MinMaxScaler)):
+            raise ValueError("Given file '{}' is not well formatted to load scale and label".format(file))
